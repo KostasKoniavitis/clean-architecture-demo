@@ -13,8 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import com.finartix.cleanarchitecture.demo.user.adapters.gateways.ds.UserDsGateway;
-import com.finartix.cleanarchitecture.demo.user.adapters.presenters.CreateUserPresenter;
+import com.finartix.cleanarchitecture.demo.user.adapters.out.gateways.ds.UserDsGateway;
+import com.finartix.cleanarchitecture.demo.user.adapters.out.presenters.view.UserViewPresenter;
 import com.finartix.cleanarchitecture.demo.user.domains.IUser;
 import com.finartix.cleanarchitecture.demo.user.domains.User;
 import com.finartix.cleanarchitecture.demo.user.usecases.UserInteractor;
@@ -25,25 +25,24 @@ import com.finartix.cleanarchitecture.demo.user.usecases.ports.out.IUserPresente
 
 class UserResponseFormatterUnitTest {
 
-    CreateUserPresenter createUserPresenter = new CreateUserPresenter();
+    UserViewPresenter userViewPresenter = new UserViewPresenter();
     UserDsGateway userDsGateway = mock(UserDsGateway.class);
     IUserPresenter userPresenter = mock(IUserPresenter.class);
-    ICreateUserUseCase createUserUseCase = new UserInteractor(userDsGateway, createUserPresenter);
+    ICreateUserUseCase createUserUseCase = new UserInteractor(userDsGateway, userViewPresenter);
     ArgumentCaptor<String> userRequestModelArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
     @Test
     void givenDateAnd3HourTime_whenPrepareSuccessView_thenReturnOnly3HourTime() {
         CreateUserResponseDto modelResponse =
                 new CreateUserResponseDto("baeldung", "2020-12-20T03:00:00.000");
-        CreateUserResponseDto formattedResponse =
-                createUserPresenter.createdSuccessResponse(modelResponse);
+        CreateUserResponseDto formattedResponse = userViewPresenter.successResponse(modelResponse);
 
         assertThat(formattedResponse.getCreationTime()).isEqualTo("03:00:00");
     }
 
     @Test
     void whenPrepareFailView_thenThrowHttpConflictException() {
-        assertThatThrownBy(() -> createUserPresenter.cannotBeAdminResponse("Invalid password"))
+        assertThatThrownBy(() -> userViewPresenter.cannotBeAdminResponse())
                 .isInstanceOf(ResponseStatusException.class);
     }
 

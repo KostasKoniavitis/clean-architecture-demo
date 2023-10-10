@@ -1,4 +1,4 @@
-package com.finartix.cleanarchitecture.demo.user.adapters.controllers;
+package com.finartix.cleanarchitecture.demo.user.adapters.in.controllers;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -1,12 +1,11 @@
 package com.finartix.cleanarchitecture.demo.user.usecases;
 
-import java.time.Instant;
-
 import com.finartix.cleanarchitecture.demo.user.domains.IUser;
 import com.finartix.cleanarchitecture.demo.user.domains.User;
 import com.finartix.cleanarchitecture.demo.user.usecases.dtos.CreateUserDsDto;
 import com.finartix.cleanarchitecture.demo.user.usecases.dtos.CreateUserRequestDto;
 import com.finartix.cleanarchitecture.demo.user.usecases.dtos.CreateUserResponseDto;
+import com.finartix.cleanarchitecture.demo.user.usecases.dtos.UserDsDto;
 import com.finartix.cleanarchitecture.demo.user.usecases.ports.in.ICreateUserUseCase;
 import com.finartix.cleanarchitecture.demo.user.usecases.ports.out.IUserDsGateway;
 import com.finartix.cleanarchitecture.demo.user.usecases.ports.out.IUserPresenter;
@@ -37,17 +36,19 @@ public class UserInteractor implements ICreateUserUseCase {
                         .password(createUserRequestDto.getPassword())
                         .build();
 
-        CreateUserDsDto userDsDto =
+        CreateUserDsDto createUserDsDto =
                 CreateUserDsDto.builder().name(user.getName()).password(user.getPassword()).build();
 
-        userDsGateway.save(userDsDto);
+        userDsGateway.save(createUserDsDto);
+
+        UserDsDto userDsDto = userDsGateway.getByName(user.getName());
 
         CreateUserResponseDto createUserResponseDto =
                 CreateUserResponseDto.builder()
-                        .login(user.getName())
-                        .creationTime(Long.toString(Instant.now().toEpochMilli()))
+                        .login(userDsDto.getName())
+                        .creationTime(Long.toString(userDsDto.getCreatedDate().toEpochMilli()))
                         .build();
 
-        return userPresenter.createdSuccessResponse(createUserResponseDto);
+        return userPresenter.successResponse(createUserResponseDto);
     }
 }

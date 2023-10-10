@@ -1,4 +1,4 @@
-package com.finartix.cleanarchitecture.demo.user.adapters.presenters;
+package com.finartix.cleanarchitecture.demo.user.adapters.out.presenters.view;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -8,10 +8,10 @@ import com.finartix.cleanarchitecture.demo.user.usecases.exceptions.UserAlreadyE
 import com.finartix.cleanarchitecture.demo.user.usecases.exceptions.UserCannotBeAdminException;
 import com.finartix.cleanarchitecture.demo.user.usecases.ports.out.IUserPresenter;
 
-public class CreateUserPresenter implements IUserPresenter {
+public class UserViewPresenter implements IUserPresenter {
 
     @Override
-    public CreateUserResponseDto createdSuccessResponse(CreateUserResponseDto response) {
+    public CreateUserResponseDto successResponse(CreateUserResponseDto response) {
         LocalDateTime responseTime = LocalDateTime.parse(response.getCreationTime());
         response.setCreationTime(responseTime.format(DateTimeFormatter.ofPattern("hh:mm:ss")));
         return response;

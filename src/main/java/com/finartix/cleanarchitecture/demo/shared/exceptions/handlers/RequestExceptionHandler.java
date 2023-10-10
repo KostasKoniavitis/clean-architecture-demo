@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.finartix.cleanarchitecture.demo.shared.exceptions.ApplicationException;
 import com.finartix.cleanarchitecture.demo.shared.exceptions.ApplicationHttpException;
-import com.finartix.cleanarchitecture.demo.shared.models.ApiError;
+import com.finartix.cleanarchitecture.demo.shared.models.ApiErrorModel;
 
 @Slf4j
 public abstract class RequestExceptionHandler extends ResponseEntityExceptionHandler {
@@ -40,13 +40,14 @@ public abstract class RequestExceptionHandler extends ResponseEntityExceptionHan
     @ExceptionHandler(ApplicationException.class)
     protected ResponseEntity<Object> handleApplicationException(ApplicationException ex) {
         return buildResponseEntity(
-                new ApiError(INTERNAL_SERVER_ERROR, ex.getInternalStatus(), ex.getMessage(), ex));
+                new ApiErrorModel(
+                        INTERNAL_SERVER_ERROR, ex.getInternalStatus(), ex.getMessage(), ex));
     }
 
     @ExceptionHandler(ApplicationHttpException.class)
     protected ResponseEntity<Object> handleApplicationException(ApplicationHttpException ex) {
         return buildResponseEntity(
-                new ApiError(
+                new ApiErrorModel(
                         ex.getHttpStatus(),
                         ex.getPayload(),
                         ex.getInternalStatus(),
@@ -62,10 +63,10 @@ public abstract class RequestExceptionHandler extends ResponseEntityExceptionHan
      */
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex) {
-        ApiError apiError = new ApiError(BAD_REQUEST);
-        apiError.setMessage("Validation error");
-        apiError.addValidationErrors(ex.getConstraintViolations());
-        return buildResponseEntity(apiError);
+        ApiErrorModel apiErrorModel = new ApiErrorModel(BAD_REQUEST);
+        apiErrorModel.setMessage("Validation error");
+        apiErrorModel.addValidationErrors(ex.getConstraintViolations());
+        return buildResponseEntity(apiErrorModel);
     }
 
     /**
@@ -79,9 +80,9 @@ public abstract class RequestExceptionHandler extends ResponseEntityExceptionHan
             DataIntegrityViolationException ex, WebRequest request) {
         if (ex.getCause() instanceof ConstraintViolationException) {
             return buildResponseEntity(
-                    new ApiError(HttpStatus.CONFLICT, "Database error", ex.getCause()));
+                    new ApiErrorModel(HttpStatus.CONFLICT, "Database error", ex.getCause()));
         }
-        return buildResponseEntity(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex));
+        return buildResponseEntity(new ApiErrorModel(HttpStatus.INTERNAL_SERVER_ERROR, ex));
     }
 
     /**
@@ -93,13 +94,13 @@ public abstract class RequestExceptionHandler extends ResponseEntityExceptionHan
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<Object> handleMethodArgumentTypeMismatch(
             MethodArgumentTypeMismatchException ex, WebRequest request) {
-        ApiError apiError = new ApiError(BAD_REQUEST);
-        apiError.setMessage(
+        ApiErrorModel apiErrorModel = new ApiErrorModel(BAD_REQUEST);
+        apiErrorModel.setMessage(
                 String.format(
                         "The parameter '%s' of value '%s' could not be converted to type '%s'",
                         ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName()));
-        apiError.setDebugMessage(ex.getMessage());
-        return buildResponseEntity(apiError);
+        apiErrorModel.setDebugMessage(ex.getMessage());
+        return buildResponseEntity(apiErrorModel);
     }
 
     /**
@@ -118,7 +119,7 @@ public abstract class RequestExceptionHandler extends ResponseEntityExceptionHan
             HttpStatus status,
             WebRequest request) {
         String error = ex.getParameterName() + " parameter is missing";
-        return buildResponseEntity(new ApiError(BAD_REQUEST, error, ex));
+        return buildResponseEntity(new ApiErrorModel(BAD_REQUEST, error, ex));
     }
 
     /**
@@ -140,7 +141,7 @@ public abstract class RequestExceptionHandler extends ResponseEntityExceptionHan
         builder.append(" media type is not supported. Supported media types are ");
         ex.getSupportedMediaTypes().forEach(t -> builder.append(t).append(", "));
         return buildResponseEntity(
-                new ApiError(
+                new ApiErrorModel(
                         UNSUPPORTED_MEDIA_TYPE, builder.substring(0, builder.length() - 2), ex));
     }
 
@@ -158,11 +159,11 @@ public abstract class RequestExceptionHandler extends ResponseEntityExceptionHan
             HttpHeaders headers,
             HttpStatus status,
             WebRequest request) {
-        ApiError apiError = new ApiError(BAD_REQUEST);
-        apiError.setMessage("Validation error");
-        apiError.addValidationErrors(ex.getBindingResult().getFieldErrors());
-        apiError.addValidationError(ex.getBindingResult().getGlobalErrors());
-        return buildResponseEntity(apiError);
+        ApiErrorModel apiErrorModel = new ApiErrorModel(BAD_REQUEST);
+        apiErrorModel.setMessage("Validation error");
+        apiErrorModel.addValidationErrors(ex.getBindingResult().getFieldErrors());
+        apiErrorModel.addValidationError(ex.getBindingResult().getGlobalErrors());
+        return buildResponseEntity(apiErrorModel);
     }
 
     /**
@@ -185,7 +186,7 @@ public abstract class RequestExceptionHandler extends ResponseEntityExceptionHan
                 servletWebRequest.getHttpMethod(),
                 servletWebRequest.getRequest().getServletPath());
         String error = "Malformed JSON request";
-        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, error, ex));
+        return buildResponseEntity(new ApiErrorModel(HttpStatus.BAD_REQUEST, error, ex));
     }
 
     /**
@@ -203,7 +204,7 @@ public abstract class RequestExceptionHandler extends ResponseEntityExceptionHan
             HttpStatus status,
             WebRequest request) {
         String error = "Error writing JSON output";
-        return buildResponseEntity(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, error, ex));
+        return buildResponseEntity(new ApiErrorModel(HttpStatus.INTERNAL_SERVER_ERROR, error, ex));
     }
 
     /**
@@ -220,22 +221,22 @@ public abstract class RequestExceptionHandler extends ResponseEntityExceptionHan
             HttpHeaders headers,
             HttpStatus status,
             WebRequest request) {
-        ApiError apiError = new ApiError(BAD_REQUEST);
-        apiError.setMessage(
+        ApiErrorModel apiErrorModel = new ApiErrorModel(BAD_REQUEST);
+        apiErrorModel.setMessage(
                 String.format(
                         "Could not find the '%s' method for URL '%s'",
                         ex.getHttpMethod(), ex.getRequestURL()));
-        apiError.setDebugMessage(ex.getMessage());
-        return buildResponseEntity(apiError);
+        apiErrorModel.setDebugMessage(ex.getMessage());
+        return buildResponseEntity(apiErrorModel);
     }
 
     /** Handle javax.persistence.EntityNotFoundException */
     @ExceptionHandler(EntityNotFoundException.class)
     protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex) {
-        return buildResponseEntity(new ApiError(HttpStatus.NOT_FOUND, ex));
+        return buildResponseEntity(new ApiErrorModel(HttpStatus.NOT_FOUND, ex));
     }
 
-    private ResponseEntity<Object> buildResponseEntity(ApiError apiError) {
-        return new ResponseEntity<>(apiError, apiError.getStatus());
+    private ResponseEntity<Object> buildResponseEntity(ApiErrorModel apiErrorModel) {
+        return new ResponseEntity<>(apiErrorModel, apiErrorModel.getStatus());
     }
 }

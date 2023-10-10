@@ -1,13 +1,11 @@
 package com.finartix.cleanarchitecture.demo.user.domains;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class User implements IUser {
 

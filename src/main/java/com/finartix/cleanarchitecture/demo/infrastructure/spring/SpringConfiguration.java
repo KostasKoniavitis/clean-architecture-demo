@@ -1,5 +1,7 @@
 package com.finartix.cleanarchitecture.demo.infrastructure.spring;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
@@ -31,7 +33,14 @@ public class SpringConfiguration {
     }
 
     static TypeFilter removeDtosAndEntitiesFilter() {
-        return (MetadataReader mr, MetadataReaderFactory mrf) ->
-                !mr.getClassMetadata().getClassName().endsWith("Dto");
+        return (MetadataReader mr, MetadataReaderFactory mrf) -> {
+            var metadata = mr.getClassMetadata();
+            var resource = mr.getResource();
+
+            return !metadata.getClassName().endsWith("Dto")
+                    && !metadata.getClassName().endsWith("Model")
+                    && !metadata.getClassName().endsWith("Exception")
+                    && !Objects.requireNonNull(resource.getFilename()).contains("Domain");
+        };
     }
 }

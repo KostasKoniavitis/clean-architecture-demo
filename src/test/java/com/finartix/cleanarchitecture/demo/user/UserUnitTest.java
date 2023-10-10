@@ -7,7 +7,7 @@ import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.finartix.cleanarchitecture.demo.user.adapters.gateways.ds.UserDsGateway;
+import com.finartix.cleanarchitecture.demo.user.adapters.out.gateways.ds.UserDsGateway;
 import com.finartix.cleanarchitecture.demo.user.domains.IUser;
 import com.finartix.cleanarchitecture.demo.user.domains.User;
 import com.finartix.cleanarchitecture.demo.user.usecases.UserInteractor;
@@ -45,6 +45,6 @@ class UserUnitTest {
         interactor.create(createUserRequestDto);
 
         verify(userDsGateway, times(1)).save(any(CreateUserDsDto.class));
-        verify(userPresenter, times(1)).createdSuccessResponse(any(CreateUserResponseDto.class));
+        verify(userPresenter, times(1)).successResponse(any(CreateUserResponseDto.class));
     }
 }

@@ -14,25 +14,31 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 @MappedSuperclass
 public abstract class Auditable<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @CreatedBy
-    @Column(updatable = false)
-    protected T createdBy;
-
     @CreatedDate
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_date", nullable = false, updatable = false)
     @Temporal(TIMESTAMP)
     protected Instant createdDate;
 
-    @LastModifiedBy
-    @Column(nullable = false)
-    protected T lastModifiedBy;
+    @CreatedBy
+    @Column(name = "created_by", updatable = false)
+    protected T createdBy;
 
     @LastModifiedDate
     @Temporal(TIMESTAMP)
+    @Column(name = "last_modified_date", nullable = false)
     protected Instant lastModifiedDate;
+
+    @LastModifiedBy
+    @Column(name = "last_modified_by", nullable = false)
+    protected T lastModifiedBy;
 }

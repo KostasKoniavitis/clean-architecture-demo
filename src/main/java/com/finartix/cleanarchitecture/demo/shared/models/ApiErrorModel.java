@@ -19,7 +19,7 @@ import lombok.Data;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 
 @Data
-public class ApiError {
+public class ApiErrorModel {
 
     private HttpStatus status;
 
@@ -31,20 +31,20 @@ public class ApiError {
 
     private String debugMessage;
 
-    private List<ApiValidationError> validationErrors;
+    private List<ApiValidationErrorModel> validationErrors;
 
     private Object payload;
 
-    private ApiError() {
+    private ApiErrorModel() {
         timestamp = ZonedDateTime.now(ZoneId.of("UTC"));
     }
 
-    public ApiError(HttpStatus status) {
+    public ApiErrorModel(HttpStatus status) {
         this();
         this.status = status;
     }
 
-    public ApiError(HttpStatus status, Throwable ex) {
+    public ApiErrorModel(HttpStatus status, Throwable ex) {
         this();
         this.status = status;
         this.message = "Unexpected error";
@@ -52,7 +52,7 @@ public class ApiError {
         this.debugMessage = ex.getLocalizedMessage();
     }
 
-    public ApiError(HttpStatus status, String message, Throwable ex) {
+    public ApiErrorModel(HttpStatus status, String message, Throwable ex) {
         this();
         this.status = status;
         this.message = message;
@@ -60,7 +60,7 @@ public class ApiError {
         this.debugMessage = ex.getLocalizedMessage();
     }
 
-    public ApiError(HttpStatus status, String internalStatus, String message, Throwable ex) {
+    public ApiErrorModel(HttpStatus status, String internalStatus, String message, Throwable ex) {
         this();
         this.status = status;
         this.internalStatus = internalStatus;
@@ -68,7 +68,7 @@ public class ApiError {
         this.debugMessage = ex.getLocalizedMessage();
     }
 
-    public ApiError(
+    public ApiErrorModel(
             HttpStatus status,
             Object payload,
             String internalStatus,
@@ -82,7 +82,7 @@ public class ApiError {
         this.debugMessage = ex.getLocalizedMessage();
     }
 
-    private void addSubError(ApiValidationError validationError) {
+    private void addSubError(ApiValidationErrorModel validationError) {
         if (validationErrors == null) {
             validationErrors = new ArrayList<>();
         }
@@ -91,11 +91,11 @@ public class ApiError {
 
     private void addValidationError(
             String object, String field, Object rejectedValue, String message) {
-        addSubError(new ApiValidationError(object, field, rejectedValue, message));
+        addSubError(new ApiValidationErrorModel(object, field, rejectedValue, message));
     }
 
     private void addValidationError(String object, String message) {
-        addSubError(new ApiValidationError(object, message));
+        addSubError(new ApiValidationErrorModel(object, message));
     }
 
     private void addValidationError(FieldError fieldError) {
